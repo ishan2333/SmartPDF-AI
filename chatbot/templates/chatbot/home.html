@@ -1,0 +1,644 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartPDF AI</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #020617;
+    color: #e2e8f0;
+}
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+
+.sidebar {
+    width: 280px;
+    background: #0f172a;
+    padding: 25px;
+    border-right: 1px solid #1e293b;
+}
+
+.logo {
+    color: #22c55e;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 35px;
+}
+
+.sidebar h3 {
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+.document {
+    display: block;
+    background: #1e293b;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    color: #e2e8f0;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+/* Main */
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.header {
+    padding: 22px 30px;
+    border-bottom: 1px solid #1e293b;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.chat {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.welcome {
+    text-align: center;
+    margin: 70px auto;
+    max-width: 500px;
+}
+
+.welcome h1 {
+    font-size: 32px;
+    color: #22c55e;
+}
+
+.welcome p {
+    color: #94a3b8;
+}
+
+/* Chat messages */
+
+.message {
+    max-width: 850px;
+    margin: 25px auto;
+    line-height: 1.7;
+}
+
+.user {
+    background: #1e293b;
+    padding: 16px;
+    border-radius: 12px;
+}
+
+.ai {
+    padding: 16px 0;
+    white-space: pre-wrap;
+}
+
+.label {
+    color: #22c55e;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+/* Sources */
+
+.sources {
+    margin-top: 15px;
+}
+
+.source {
+    background: #0f172a;
+    border: 1px solid #334155;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 8px 0;
+    font-size: 13px;
+}
+
+/* Input */
+
+.input-area {
+    padding: 20px 30px;
+    border-top: 1px solid #1e293b;
+}
+
+.input-box {
+    max-width: 850px;
+    margin: auto;
+}
+
+select, input, button {
+    font: inherit;
+}
+
+select {
+    width: 100%;
+    background: #1e293b;
+    color: white;
+    padding: 12px;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.question-box {
+    display: flex;
+    gap: 10px;
+}
+
+.question-box input {
+    flex: 1;
+    min-width: 0;
+    background: #1e293b;
+    color: white;
+    padding: 15px;
+    border: 1px solid #334155;
+    border-radius: 10px;
+}
+
+button {
+    background: #22c55e;
+    color: #020617;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 20px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.status {
+    color: #94a3b8;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+/* Upload */
+
+.upload {
+    margin-top: 25px;
+}
+
+.upload input {
+    width: 100%;
+    margin: 10px 0;
+    color: #94a3b8;
+}
+
+/* Mobile */
+
+@media(max-width: 700px) {
+    .sidebar {
+        display: none;
+    }
+
+    .chat {
+        padding: 15px;
+    }
+
+    .input-area {
+        padding: 15px;
+    }
+
+    .header {
+        padding: 18px;
+    }
+
+    .question-box {
+        flex-direction: column;
+    }
+
+    .welcome {
+        margin-top: 40px;
+    }
+}
+
+.workspace {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    gap: 15px;
+    padding: 20px;
+}
+
+.pdf-panel,
+.chat-panel {
+    flex: 1;
+    min-width: 0;
+    background: #0f172a;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.pdf-panel iframe {
+    border: none;
+    background: white;
+    border-radius: 8px;
+}
+
+.chat-panel {
+    display: flex;
+    flex-direction: column;
+}
+
+.source {
+    background: #1e293b;
+    border: 1px solid #334155;
+    padding: 12px;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.source button {
+    margin-bottom: 8px;
+    padding: 8px 12px;
+}
+
+@media(max-width: 850px) {
+    .workspace {
+        flex-direction: column;
+    }
+
+    .pdf-panel iframe {
+        height: 450px;
+    }
+}
+
+.errorlist {
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.10);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    list-style: none;
+    margin: 8px 0;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="logo">SmartPDF AI</div>
+
+        <h3>YOUR DOCUMENTS</h3>
+
+        {% for document in documents %}
+        <a class="document" href="{{ document.pdf_file.url }}"
+           target="_blank">
+            📄 {{ document.title }}
+        </a>
+        {% empty %}
+        <p>No documents uploaded.</p>
+        {% endfor %}
+
+        <div class="upload">
+            <h3>UPLOAD NEW PDF</h3>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.as_p }}
+                {{ form.non_field_errors }}
+                <button type="submit">Upload PDF</button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main -->
+    <main class="main">
+
+        <div class="header">
+            Document Intelligence Assistant
+        </div>
+
+        <div class="workspace">
+
+            <!-- PDF Viewer -->
+            <section class="pdf-panel">
+                <h3>PDF Preview</h3>
+
+                <iframe
+                    id="pdfViewer"
+                    title="PDF Document Viewer"
+                    width="100%"
+                    height="600">
+                </iframe>
+            </section>
+
+            <!-- Chat Section -->
+            <section class="chat-panel">
+
+                <div class="chat" id="chat">
+
+                    <div class="welcome" id="welcome">
+                        <h1>Ask your PDF anything.</h1>
+                        <p>Start asking questions about your document.</p>
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+            <div class="welcome" id="welcome">
+                <h1>Ask your PDF anything.</h1>
+                <p>Upload a document and start asking questions.</p>
+            </div>
+
+        </div>
+
+        <div class="input-area">
+            <div class="input-box">
+
+                <select id="document_id" onchange="loadPDF(); loadChatHistory();">
+                    {% for document in documents %}
+                    <option
+                        value="{{ document.id }}"
+                        data-pdf-url="{{ document.pdf_file.url }}">
+                        {{ document.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+
+                <div class="question-box">
+                    <input id="question"
+                           placeholder="Ask a question about your PDF..."
+                           onkeydown="if(event.key==='Enter') askQuestion()">
+                    {{ form.pdf_file.errors }}       
+
+                    <button id="askBtn" onclick="askQuestion()">
+                        Ask AI
+                    </button>
+                </div>
+
+                <div class="status" id="status"></div>
+
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<script>
+async function loadChatHistory() {
+
+    const documentId = document.getElementById("document_id").value;
+    const chat = document.getElementById("chat");
+
+    if (!documentId) return;
+
+    chat.innerHTML = `
+        <div class="message ai">
+            Loading previous conversations...
+        </div>
+    `;
+
+    try {
+
+        const response = await fetch(
+            `/chat-history/${documentId}/`
+        );
+
+        const data = await response.json();
+
+        chat.innerHTML = "";
+
+        if (data.messages.length === 0) {
+            chat.innerHTML = `
+                <div id="welcome" class="message ai">
+                    No previous conversations.
+                    Ask your first question!
+                </div>
+            `;
+            return;
+        }
+
+        data.messages.forEach(message => {
+
+            displayMessage(message.question, "user");
+
+            displayMessage(
+                message.answer,
+                "ai",
+                message.created_at
+            );
+
+        });
+
+        chat.scrollTop = chat.scrollHeight;
+
+    } catch (error) {
+
+        chat.innerHTML = `
+            <div class="message ai">
+                Unable to load chat history.
+            </div>
+        `;
+
+        console.error(error);
+    }
+}
+function displayMessage(text, type, date = "") {
+
+    const chat = document.getElementById("chat");
+
+    const message = document.createElement("div");
+    message.className = "message " + type;
+
+    if (type === "ai") {
+
+        const label = document.createElement("div");
+        label.className = "label";
+        label.innerText = "SMARTPDF AI";
+
+        const answer = document.createElement("div");
+        answer.innerText = text;
+
+        message.append(label, answer);
+
+    } else {
+
+        message.innerText = text;
+
+    }
+
+    if (date) {
+
+        const timestamp = document.createElement("small");
+        timestamp.innerText = date;
+
+        message.appendChild(timestamp);
+
+    }
+
+    chat.appendChild(message);
+}
+
+async function askQuestion() {
+
+    const questionInput = document.getElementById("question");
+    const documentId = document.getElementById("document_id").value;
+    const question = questionInput.value.trim();
+
+    if (!question || !documentId) {
+        alert("Select a PDF and enter a question.");
+        return;
+    }
+
+    const chat = document.getElementById("chat");
+    const status = document.getElementById("status");
+    const askBtn = document.getElementById("askBtn");
+
+    document.getElementById("welcome")?.remove();
+
+    // User message
+    const userMessage = document.createElement("div");
+    userMessage.className = "message user";
+    userMessage.innerText = question;
+    chat.appendChild(userMessage);
+
+    // AI message
+    const aiMessage = document.createElement("div");
+    aiMessage.className = "message ai";
+
+    const label = document.createElement("div");
+    label.className = "label";
+    label.innerText = "SMARTPDF AI";
+
+    const answer = document.createElement("div");
+    answer.innerText = "Thinking...";
+
+    const sources = document.createElement("div");
+    sources.className = "sources";
+
+    aiMessage.append(label, answer, sources);
+    chat.appendChild(aiMessage);
+
+    chat.scrollTop = chat.scrollHeight;
+
+    askBtn.disabled = true;
+    status.innerText = "Generating answer...";
+
+    const formData = new FormData();
+    formData.append("question", question);
+    formData.append("document_id", documentId);
+
+    try {
+
+        const response = await fetch("/chat/", {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || "Request failed");
+        }
+
+        answer.innerText = data.answer;
+
+        data.sources.forEach(source => {
+
+            const card = document.createElement("div");
+            card.className = "source";
+
+            const button = document.createElement("button");
+
+            button.innerText =
+                "📄 View Page " + source.page_number;
+
+            button.onclick = function() {
+                loadPDF(source.page_number);
+            };
+
+            const content = document.createElement("p");
+
+            content.innerText = source.content;
+
+            card.appendChild(button);
+            card.appendChild(content);
+
+            sources.appendChild(card);
+        });
+
+        status.innerText = "Answer completed.";
+
+    } catch (error) {
+
+        answer.innerText = "Error: " + error.message;
+        status.innerText = "Something went wrong.";
+
+    } finally {
+
+        askBtn.disabled = false;
+        questionInput.value = "";
+        questionInput.focus();
+        chat.scrollTop = chat.scrollHeight;
+
+    }
+}
+
+function loadPDF(pageNumber = 1) {
+
+    const dropdown = document.getElementById("document_id");
+
+    const selectedOption =
+        dropdown.options[dropdown.selectedIndex];
+
+    if (!selectedOption) return;
+
+    const pdfUrl = selectedOption.dataset.pdfUrl;
+
+    if (!pdfUrl) return;
+
+    document.getElementById("pdfViewer").src =
+        pdfUrl + "#page=" + pageNumber;
+}
+
+window.addEventListener("DOMContentLoaded", function() {
+    loadPDF();
+});
+
+window.addEventListener("DOMContentLoaded", function() {
+
+    loadPDF();
+
+    loadChatHistory();
+
+});
+</script>
+
+</body>
+</html>
